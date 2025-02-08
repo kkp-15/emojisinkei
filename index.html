@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>絵文字神経衰弱</title>
+    <style>
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+        .card.flipped {
+            background-color: white;
+        }
+        .game-message {
+            text-align: center;
+            font-size: 2rem;
+            margin-top: 20px;
+        }
+        #restart-button {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #restart-button button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        #turns {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">絵文字神経衰弱</h1>
+    <div id="turns">ターン数: 0</div>
+    <div class="game-board" id="game-board"></div>
+    <div class="game-message" id="game-message"></div>
+    <div id="restart-button">
+        <button onclick="restartGame()">もう一度プレイ</button>
+    </div>
+
+    <script>
+        const emojis = ['😊', '😅', '😍', '😂', '😎', '🥺', '🤔', '😜'];
+        let shuffledEmojis = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+        const board = document.getElementById('game-board');
+        let flippedCards = [];
+        let matchedCards = [];
+        let moveCount = 0;
+
+        // ゲーム開始時にカードを並べる
+        function createBoard() {
+            shuffledEmojis.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.emoji = emoji;
+                card.addEventListener('click', () => flipCard(card));
+                board.appendChild(card);
+            });
+        }
+
+        // カードをひっくり返す
+        function flipCard(card) {
+            if (flippedCards.length < 2 && !card.classList.contains('flipped') && !matchedCards.includes(card)) {
+                card.classList.add('flipped');
+                card.textContent = card.dataset.emoji;
+                flippedCards.push(card);
+                moveCount++;
+                document.getElementById('turns').textContent = `ターン数: ${moveCount}`; // ターン数を更新
+
+                if (flippedCards.length === 2) {
+                    setTimeout(() => {
+                        checkMatch();
+                    }, 1000);
+                }
+            }
+        }
+
+        // 一致を確認
+        function checkMatch() {
+            const [firstCard, secondCard] = flippedCards;
+            if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+                matchedCards.push(firstCard, secondCard);
+            } else {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                firstCard.textContent = '';
+                secondCard.textContent = '';
+            }
+            flippedCards = [];
+
+            // ゲームクリア判定
+            if (matchedCards.length === shuffledEmojis.length) {
+                setTimeout(() => {
+                    document.getElementById('game-message').textContent = `おめでとう🎉 ゲームクリア！ターン数: ${moveCount}`;
+                    document.getElementById('restart-button').style.display = 'block';
+                }, 500);
+            }
+        }
+
+        // ゲームのリスタート
+        function restartGame() {
+            shuffledEmojis = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            matchedCards = [];
+            flippedCards = [];
+            moveCount = 0;
+            document.getElementById('game-message').textContent = '';
+            document.getElementById('restart-button').style.display = 'none';
+            document.getElementById('turns').textContent = `ターン数: ${moveCount}`; // リスタート時にターン数リセット
+
+            // 画面をリセットして新しいゲームを開始
+            board.innerHTML = '';
+            createBoard();
+        }
+
+        // 初回のゲームボードを作成
+        createBoard();
+    </script>
+</body>
+</html>
