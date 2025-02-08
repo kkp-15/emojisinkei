@@ -17,6 +17,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            overflow: hidden; /* 画面外に内容がはみ出ないようにする */
         }
         .game-board {
             display: grid;
@@ -60,6 +61,29 @@
             font-size: 5vw;
             margin-top: 3vh;
             color: white; /* ターン数の文字色を白に */
+        }
+
+        /* 横長画面対応 */
+        @media (orientation: landscape) {
+            .game-board {
+                grid-template-columns: repeat(4, 15vw); /* 横向きではカードを少し小さく */
+                grid-gap: 4vw;
+            }
+            .card {
+                width: 15vw;
+                height: 15vw;
+                font-size: 3vw;
+            }
+            .game-message {
+                font-size: 5vw;
+            }
+            #turns {
+                font-size: 4vw;
+            }
+            #restart-button button {
+                font-size: 4vw;
+                padding: 4vw 8vw;
+            }
         }
 
         /* スマホ向けにさらに調整 */
